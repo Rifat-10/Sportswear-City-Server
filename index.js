@@ -1,19 +1,7 @@
-//user name:rifat10
-//pass : 53IHpdYbYwZahbLG
-//
-// const { MongoClient, ServerApiVersion } = require('mongodb');
-// const uri = "mongodb+srv://rifat10:<password>@cluster0.jszmv.mongodb.net/?retryWrites=true&w=majority";
-// const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
-// client.connect(err => {
-//   const collection = client.db("test").collection("devices");
-//   // perform actions on the collection object
-//   client.close();
-// });
+require("dotenv").config();
 const express = require('express');
 const cors = require("cors");
 const { MongoClient, ServerApiVersion } = require('mongodb');
-// const jwt = require("jsonwebtoken");
-// require("dotenv").config();
 const port = process.env.PORT || 5000;
 
 const app = express();
@@ -22,9 +10,11 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
+app.get('/', (req, res) => {
+    res.send('Look Mama!')
+});
 
-
-const uri = "mongodb+srv://rifat10:53IHpdYbYwZahbLG@cluster0.jszmv.mongodb.net/?retryWrites=true&w=majority";
+const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.jszmv.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
 
@@ -32,9 +22,26 @@ async function run() {
     try {
         await client.connect();
         const itemCollection = client.db("sportSwear").collection("inventory");
-        const inventory = { name: 'hjhjh', email: 'jjj@gmail.com' };
-        const result = await itemCollection.insertOne(inventory);
-        console.log(`User inserted with id: ${result.insertedID}`);
+        const reviewCollection = client.db("sportSwear").collection("review");
+
+         // Loading all the inventories
+        app.get('/inventory', async(req, res) => {
+            const query = {};
+            const cursor = itemCollection.find(query);
+            const inventory = await cursor.toArray();
+            res.send(inventory);
+        })
+
+        // Loading all the rivews
+        app.get('/review', async(req, res) => {
+            const query = {};
+            const cursor = reviewCollection.find(query);
+            const review = await cursor.toArray();
+            res.send(review);
+        })
+
+
+       
     }
     finally {
         //   await client.close();  
@@ -42,10 +49,6 @@ async function run() {
 }
 
 run().catch(console.dir);
-
-app.get('/', (req, res) => {
-    res.send('Look Mama!')
-});
 
 app.listen(port, () => {
     console.log('listening on port', port);
