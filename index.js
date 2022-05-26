@@ -48,7 +48,27 @@ async function run() {
             const inventory = await itemCollection.findOne(query);
             res.json(inventory);
         });
-       
+        // Updating a Particuler inventory { Update Inventory }
+        app.put("/inventory/:id", async (req, res) => {
+            const id = req.params.id;
+            const updatedQuantity = req.body;
+            const query = { _id: ObjectId(id) };
+            const options = { upsert: true };
+            const value = updatedQuantity.quantity;
+            const updateDoc = {
+                $set: {
+                    quantity: value,
+                },
+            };
+
+            const result = await itemCollection.updateOne(
+                query,
+                updateDoc,
+                options
+            );
+            res.send(result);
+        });
+
     }
     finally {
         //   await client.close();  
