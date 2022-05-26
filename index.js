@@ -15,6 +15,8 @@ app.get('/', (req, res) => {
     res.send('Look Mama!')
 });
 
+
+
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@cluster0.jszmv.mongodb.net/?retryWrites=true&w=majority`;
 const client = new MongoClient(uri, { useNewUrlParser: true, useUnifiedTopology: true, serverApi: ServerApiVersion.v1 });
 
@@ -24,6 +26,7 @@ async function run() {
         await client.connect();
         const itemCollection = client.db("sportSwear").collection("inventory");
         const reviewCollection = client.db("sportSwear").collection("review");
+
 
         // Loading all the inventories
         app.get('/inventory', async (req, res) => {
@@ -40,6 +43,13 @@ async function run() {
             const review = await cursor.toArray();
             res.send(review);
         })
+
+        //storing reviews to the database
+        app.post('/review', async (req, res) => {
+            const review = req.body;
+            const result = await reviewCollection.insertOne(review);
+            res.json(result);
+        });
 
         // Loading a particular inventory { Load inventory:id details }
         app.get("/inventory/:id", async (req, res) => {
@@ -76,6 +86,16 @@ async function run() {
         const result = await itemCollection.deleteOne(query);
         res.send(result);
       });
+
+        // Inserting a new Inventory { Add Inventory }
+    app.post("/inventory", async (req, res) => {
+        const newInventory = req.body;
+        const result = await itemCollection.insertOne(newInventory);
+        res.json(result);
+      });
+
+
+
 
     }
     finally {
