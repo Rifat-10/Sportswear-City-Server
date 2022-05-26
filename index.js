@@ -95,7 +95,16 @@ async function run() {
       });
 
 
-
+      // Showing Individual user Inventory { myInventory }
+    app.get("/myInventory", async (req, res) => {
+        const email = req.query.email;
+        if(email){
+          const query = { email: email };
+          const cursor = itemCollection.find(query);
+          const products = await cursor.toArray();
+          res.send(products);
+        }
+      });
 
     }
     finally {
